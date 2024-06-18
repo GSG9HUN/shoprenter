@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Interfaces\SecretRepositoryInterface;
 use App\Models\Secret;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Date;
+use Spatie\ArrayToXml\ArrayToXml;
 
 class SecretService
 {
@@ -40,6 +40,14 @@ class SecretService
     public function addSecret(array $data): void
     {
         $this->secretRepository->addSecret($data);
+    }
+
+    public function convertToXML(array $array): string
+    {
+        return ArrayToXml::convert($array, [
+            'rootElementName' => 'secret',
+            'xmlEncoding' => 'UTF-8'
+        ]);
     }
 
     private function isExpired(Secret $secret): bool

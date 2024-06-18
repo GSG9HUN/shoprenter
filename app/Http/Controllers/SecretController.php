@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\SecretRequest;
-use App\Interfaces\SecretRepositoryInterface;
 use App\Services\SecretService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Response;
+use Spatie\ArrayToXml\ArrayToXml;
 
 class SecretController extends Controller
 {
@@ -19,13 +18,22 @@ class SecretController extends Controller
         $this->secretService = $secretService;
     }
 
-    public function getSecretByHash(Request $request, string $hash): JsonResponse
+    public function getSecretByHash(Request $request, string $hash): Response|JsonResponse
     {
 
         $secret = $this->secretService->getSecret($hash);
 
         if (!$secret) {
-            return response()->json("Secret not found", 404);
+            return response()->json('Secret not found', 404);
+        }
+
+        $acceptHeader = $request->header('Accept');
+
+        if ($acceptHeader === 'application/xml') {
+
+            $xml = $this->secretService->convertToXML($secret->toArray());
+
+            return response($xml, 200)->header('Content-Type', 'application/xml');
         }
 
         return response()->json($secret);
@@ -36,6 +44,6 @@ class SecretController extends Controller
 
         $this->secretService->addSecret($request->toArray());
 
-        return response()->json("Successful operation");
+        return response()->json('Successful operation');
     }
 }
