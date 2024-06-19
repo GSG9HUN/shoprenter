@@ -33,7 +33,6 @@ class SecretRepositoryTest extends TestCase
         $this->assertEquals($secret->secretText, $foundSecret->secretText);
     }
 
-
     public function testAddSecret()
     {
         $hash = hash('sha256', 'test_secret');
@@ -52,6 +51,23 @@ class SecretRepositoryTest extends TestCase
         ]);
     }
 
+    public function testAddSecretWithNoExpireDate()
+    {
+        $hash = hash('sha256', 'test_secret');
+        $data = [
+            'hash' => $hash,
+            'secret' => 'test_secret',
+            'expireAfter' => 0,
+            'expireAfterViews' => 5,
+        ];
+
+        $addedSecret = $this->secretRepository->addSecret($data);
+
+        $this->assertDatabaseHas('secrets', [
+            'hash' => $addedSecret->hash,
+            'secretText' => 'test_secret',
+        ]);
+    }
     public function testUpdateSecretExpireAfterViews()
     {
         $secret = Secret::factory()->create([
