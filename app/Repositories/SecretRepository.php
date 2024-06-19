@@ -15,7 +15,7 @@ class SecretRepository implements SecretRepositoryInterface
         return Secret::where('hash', $hash)->first();
     }
 
-    public function addSecret(array $data): void
+    public function addSecret(array $data): Secret
     {
         $expireAfter = intval($data['expireAfter']);
 
@@ -32,6 +32,8 @@ class SecretRepository implements SecretRepositoryInterface
         $secret->expireAfterViews = $data['expireAfterViews'];
 
         $secret->save();
+
+        return $secret;
     }
 
     public function updateSecret(string $hash): void

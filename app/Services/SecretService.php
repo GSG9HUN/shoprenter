@@ -37,17 +37,9 @@ class SecretService
         return $secret;
     }
 
-    public function addSecret(array $data): void
+    public function addSecret(array $data): Secret
     {
-        $this->secretRepository->addSecret($data);
-    }
-
-    public function convertToXML(array $array): string
-    {
-        return ArrayToXml::convert($array, [
-            'rootElementName' => 'secret',
-            'xmlEncoding' => 'UTF-8'
-        ]);
+        return $this->secretRepository->addSecret($data);
     }
 
     private function isExpired(Secret $secret): bool
