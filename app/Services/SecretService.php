@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Interfaces\SecretRepositoryInterface;
 use App\Models\Secret;
 use Carbon\Carbon;
-use Spatie\ArrayToXml\ArrayToXml;
 
 class SecretService
 {

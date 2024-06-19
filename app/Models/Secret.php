@@ -16,8 +16,9 @@ class Secret extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['hash','secretText','createdAt','expireAfter','expireAfterViews'];
+    protected $fillable = ['hash', 'secretText', 'createdAt', 'expireAfter', 'expireAfterViews'];
     protected $primaryKey = 'hash';
+    public $incrementing = false;
 
     public $timestamps = false;
 }
