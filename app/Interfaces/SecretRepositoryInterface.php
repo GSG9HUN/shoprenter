@@ -10,5 +10,5 @@ interface SecretRepositoryInterface
 
     public function addSecret(array $data):Secret;
 
-    public function updateSecret(string $hash);
+    public function updateSecret(Secret $secret);
 }

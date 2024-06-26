@@ -54,6 +54,8 @@ class SecretService
 
     private function updateSecret(string $hash): void
     {
-        $this->secretRepository->updateSecret($hash);
+        $secret = $this->secretRepository->getSecretByHash($hash);
+        $secret->expireAfterViews -= 1;
+        $this->secretRepository->updateSecret($secret);
     }
 }

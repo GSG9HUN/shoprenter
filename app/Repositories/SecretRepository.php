@@ -36,12 +36,8 @@ class SecretRepository implements SecretRepositoryInterface
         return $secret;
     }
 
-    public function updateSecret(string $hash): void
+    public function updateSecret(Secret $secret): void
     {
-        $secret = $this->getSecretByHash($hash);
-
-        $secret->expireAfterViews -= 1;
-
         $secret->update();
     }
 }

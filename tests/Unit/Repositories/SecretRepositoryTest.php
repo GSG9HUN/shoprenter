@@ -68,16 +68,4 @@ class SecretRepositoryTest extends TestCase
             'secretText' => 'test_secret',
         ]);
     }
-    public function testUpdateSecretExpireAfterViews()
-    {
-        $secret = Secret::factory()->create([
-            'expireAfterViews' => 5,
-        ]);
-
-        $this->secretRepository->updateSecret($secret->hash);
-
-        $updatedSecret = Secret::find($secret->hash);
-        $this->assertNotNull($updatedSecret);
-        $this->assertEquals(4, $updatedSecret->expireAfterViews);
-    }
 }

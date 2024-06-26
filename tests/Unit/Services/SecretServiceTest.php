@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Mockery;
 use Mockery\LegacyMockInterface;
+use ReflectionClass;
 use Tests\TestCase;
 
 class SecretServiceTest extends TestCase
@@ -60,9 +61,10 @@ class SecretServiceTest extends TestCase
         $this->assertEquals($expectedSecret->expireAfterViews, $result->expireAfterViews);
         $this->assertTrue(Hash::check('test_secret', $result->hash));
     }
+
     public function testReturnsSecretWhenValid()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $secret = new Secret([
             'hash' => $hash,
             'secretText' => 'test_secret',
@@ -73,20 +75,22 @@ class SecretServiceTest extends TestCase
         $this->secretRepository
             ->expects('getSecretByHash')
             ->with($hash)
+            ->twice()
             ->andReturns($secret);
 
         $this->secretRepository
             ->expects('updateSecret')
-            ->with($hash);
+            ->with($secret);
 
         $result = $this->secretService->getSecret($hash);
 
         $this->assertInstanceOf(Secret::class, $result);
         $this->assertEquals('test_secret', $result->secretText);
     }
+
     public function testReturnsSecretWhenValidWithNoExpireDate()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $secret = new Secret([
             'hash' => $hash,
             'secretText' => 'test_secret',
@@ -97,17 +101,19 @@ class SecretServiceTest extends TestCase
         $this->secretRepository
             ->expects('getSecretByHash')
             ->with($hash)
+            ->times(2)
             ->andReturns($secret);
 
         $this->secretRepository
             ->expects('updateSecret')
-            ->with($hash);
+            ->with($secret);
 
         $result = $this->secretService->getSecret($hash);
 
         $this->assertInstanceOf(Secret::class, $result);
         $this->assertEquals('test_secret', $result->secretText);
     }
+
     public function testReturnsNullWhenSecretNotFound()
     {
         $hash = 'non_existing_hash';
@@ -124,7 +130,7 @@ class SecretServiceTest extends TestCase
 
     public function testReturnsNullWhenExpireAfterViewsZero()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $secret = new Secret([
             'hash' => $hash,
             'secretText' => 'test_secret',
@@ -144,7 +150,7 @@ class SecretServiceTest extends TestCase
 
     public function testReturnsNullWhenExpired()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $secret = new Secret([
             'hash' => $hash,
             'secretText' => 'test_secret',
@@ -162,5 +168,35 @@ class SecretServiceTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function testUpdateSecret()
+    {
+        $hash = Hash::make('test_secret');
+        $secret = new Secret([
+            'hash' => $hash,
+            'secretText' => 'test_secret',
+            'expireAfterViews' => 1,
+            'expireAfter' => Carbon::now()->addHours(5),
+        ]);
+
+        $this->secretRepository
+            ->expects('getSecretByHash')
+            ->with($hash)
+            ->twice()
+            ->andReturns($secret);
+
+        $this->secretRepository
+            ->expects('updateSecret')
+            ->with($secret);
+
+        $secretServiceClass = new SecretService($this->secretRepository);
+        $reflectionSecretServiceClass = new ReflectionClass($secretServiceClass);
+        $method = $reflectionSecretServiceClass->getMethod('updateSecret');
+
+        $method->invoke($secretServiceClass, $hash);
+
+        $result = $this->secretRepository->getSecretByHash($hash);
+
+        $this->assertEquals(0, $result->expireAfterViews);
+    }
 
 }

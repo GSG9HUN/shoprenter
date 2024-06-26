@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use InvalidArgumentException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @property string hash
@@ -15,10 +17,9 @@ use Illuminate\Database\Eloquent\Model;
 class Secret extends Model
 {
     use HasFactory;
-
     protected $fillable = ['hash', 'secretText', 'createdAt', 'expireAfter', 'expireAfterViews'];
     protected $primaryKey = 'hash';
+    protected $keyType = 'string';
     public $incrementing = false;
-
     public $timestamps = false;
 }

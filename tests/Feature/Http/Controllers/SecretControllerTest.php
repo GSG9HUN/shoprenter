@@ -31,7 +31,7 @@ class SecretControllerTest extends TestCase
 
     public function testReturnsSecretByHashAsJson()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $request = new Request();
 
         $secret = new Secret([
@@ -40,6 +40,8 @@ class SecretControllerTest extends TestCase
             'expireAfterViews' => 1,
             'expireAfter' => null,
         ]);
+
+        $hash = $secret->hash;
 
         $this->secretService
             ->expects('getSecret')
@@ -56,7 +58,7 @@ class SecretControllerTest extends TestCase
 
     public function testReturnsSecretByHashAsXml()
     {
-        $hash = 'test_hash';
+        $hash = Hash::make('test_secret');
         $request = new Request();
         $request->headers->set('Accept','application/xml');
 
@@ -78,7 +80,7 @@ class SecretControllerTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
         $expectedXml = <<<XML
-<?xml version="1.0"?><secret><hash>test_hash</hash><secretText>test_secret</secretText><expireAfterViews>1</expireAfterViews><expireAfter></expireAfter></secret>
+<?xml version="1.0"?><secret><hash>$hash</hash><secretText>test_secret</secretText><expireAfterViews>1</expireAfterViews><expireAfter></expireAfter></secret>
 XML;
         $this->assertXmlStringEqualsXmlString($expectedXml, $response->getContent());
     }
